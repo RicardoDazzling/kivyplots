@@ -89,9 +89,11 @@ class MDLineChart(MDChart):
                     self.min_y = y if self.high_precision else int(y)
                 else:
                     self.min_y = y if self.high_precision else int(y)
-            elif self.max_y is None:
+            elif self.max_y is None and y >= self.min_y + 5:
                 self.max_y = y if self.high_precision else int(y)
-            elif y > self.max_y:
+            elif self.max_y is None:
+                pass
+            elif y > self.max_y and y >= self.min_y + 5:
                 self.max_y = y if self.high_precision else int(y)
         self.plots.append(__y)
         self._bind()
@@ -100,10 +102,14 @@ class MDLineChart(MDChart):
             self._add_title(title, list(self._get_color(len(self.plots))))
             self.show_title_list = True
 
-    def on_size(self, *args):
-        super().on_size(*args)
+    def clear(self):
         if self.plots:
-            self._draw(draw_basic=False)
+            self._graph.canvas.remove_group('lines')
+            self._graph.canvas.before.remove_group('mesh')
+            if self._marks:
+                for mark_list in self._marks:
+                    for mark in mark_list:
+                        self._graph.remove_widget(mark)
     # endregion
 
     # region Protected Methods:
@@ -195,24 +201,32 @@ class MDLineChart(MDChart):
                     if len(__marks) > point_idx:
                         __mark = __marks[point_idx]
                     else:
-                        if self.fields:
-                            __tooltip_text = f'{self.fields[__xy[point_idx][0]]}: {__xy[point_idx][1]}.'
-                        else:
-                            x = 'x' if self.label_x_text is None or self.label_x_text.strip() == ''\
-                                else self.label_x_text
-                            y = 'y' if self.label_y_text is None or self.label_y_text.strip() == ''\
-                                else self.label_y_text
-                            __tooltip_text = f'{x}: {__xy[point_idx][0]};\n{y}: {__xy[point_idx][1]}.'
-                        __mark = MDLineMark(size_hint=(None, None), size=(10,10), color=__color,
-                                            tooltip_text=__tooltip_text)
+                        __mark = MDLineMark(size_hint=(None, None), size=(10, 10))
                         __marks.append(__mark)
                         self._graph.add_widget(__mark)
+                    if self.fields:
+                        __tooltip_text = f'{self.fields[__xy[point_idx][0]]}: {__xy[point_idx][1]}.'
+                    else:
+                        x = 'x' if self.label_x_text is None or self.label_x_text.strip() == ''\
+                            else self.label_x_text
+                        y = 'y' if self.label_y_text is None or self.label_y_text.strip() == ''\
+                            else self.label_y_text
+                        __tooltip_text = f'{x}: {__xy[point_idx][0]};\n{y}: {__xy[point_idx][1]}.'
+                    if __mark.tooltip_text != __tooltip_text:
+                        __mark.tooltip_text = __tooltip_text
+                    if __mark.color != __color:
+                        __mark.color = __color
                     __mark.pos_hint = {'center_x': __positions[point_idx][0], 'center_y': __positions[point_idx][1]}
                 __cpi += 1
                 if len(self._marks) > idx:
                     self._marks[idx] = __marks
                 else:
                     self._marks.append(__marks)
+
+    def _on_size(self, *args):
+        super()._on_size(*args)
+        if self.plots:
+            self._draw(draw_basic=False)
     # endregion
 
     # region Static Methods:

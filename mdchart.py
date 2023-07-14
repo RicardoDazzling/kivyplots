@@ -48,6 +48,7 @@ class MDChart(MDBoxLayout):
     show_x_guidelines = BooleanProperty(False)
     show_y_guidelines = BooleanProperty(False)
     show_title_list = BooleanProperty(False)
+
     _type = StringProperty(None, allownone=True)
     _xlabels = ListProperty([])
     _ylabels = ListProperty([])
@@ -68,6 +69,10 @@ class MDChart(MDBoxLayout):
         # region kwargs:
         __spa = kwargs.get('spacing', None)
         __ori = kwargs.get('orientation', None)
+        self._font_style = font_style
+        self._label_config = {'adaptive_size': True}
+        if self._font_style is not None:
+            self._label_config['font_style'] = self._font_style
         if __spa is not None:
             kwargs['spacing'] = metrics('20dp') + metrics(__spa)
         else:
@@ -125,7 +130,7 @@ class MDChart(MDBoxLayout):
         self._xlabel_box = MDBoxLayout(orientation='vertical', size_hint=(1, None), adaptive_height=True,
                                        spacing='10dp', padding=(0, '10dp'))
         self._xlabels_box = MDFloatLayout(size_hint=(1, None))
-        self._xlabel = MDLabel(text=self.label_x_text, adaptive_size=True, pos_hint={'center_x': .5, 'center_y': .5})
+        self._xlabel = MDLabel(text=self.label_x_text, pos_hint={'center_x': .5, 'center_y': .5}, **self._label_config)
         self._xlabel_box.add_widget(self._xlabels_box)
         if self.label_x_text != '':
             self._xlabel_box.add_widget(self._xlabel)
@@ -140,7 +145,7 @@ class MDChart(MDBoxLayout):
         # region Y:
         self._ylabel_box = MDBoxLayout(size_hint=(None, 1), adaptive_width=True, spacing='10dp', padding=('10dp', 0))
         self._ylabels_box = MDFloatLayout(size_hint=(None, 1))
-        self._ylabel = MDRotatedLabel(text=self.label_y_text, adaptive_size=True,
+        self._ylabel = MDRotatedLabel(text=self.label_y_text, **self._label_config,
                                       pos_hint={'center_x': .5, 'center_y': .5})
         if self.label_y_text != '':
             self._ylabel_box.add_widget(self._ylabel)
@@ -150,7 +155,7 @@ class MDChart(MDBoxLayout):
         # region Title Box:
         self._title_box = MDCard(adaptive_size=True, pos_hint={'center_x': .5, 'top': 1}, elevation=1,
                                  padding='10dp')
-        self._title_list = MDChartTitle(adaptive_size=True, spacing='10dp', orientation=__ori)
+        self._title_list = MDChartTitle(spacing='10dp', orientation=__ori, **self._label_config)
         if self._type is not None:
             self._title_list.icon = self._get_icon()
         self._title_list.bind(min_size=self._update_title_box_size)
@@ -177,17 +182,8 @@ class MDChart(MDBoxLayout):
         self.add_widget(self._grid)
         if self.show_title_list and __ori == 'horizontal':
             self.add_widget(self._title_box)
-        self.on_size()
+        self._on_size()
         #endregion
-    # endregion
-
-    # region Public Functions:
-    def on_size(self, *args):
-        self._update()
-        self._draw_basic_graph()
-        self._get_label_height()
-        self._get_label_width()
-        self._title_list._min_size_update()
     # endregion
 
     # region Protected Functions:
@@ -204,8 +200,8 @@ class MDChart(MDBoxLayout):
         self.bind(show_title_list=s)
         o = self._change_orientation
         self.bind(orientation=o)
-        self.bind(size=self.on_size, pos=self.on_size)
-        self._graph.bind(size=self.on_size, pos=self.on_size)
+        self.bind(size=self._on_size, pos=self._on_size)
+        self._graph.bind(size=self._on_size, pos=self._on_size)
 
     def _unbind(self):
         u = self._update
@@ -220,7 +216,7 @@ class MDChart(MDBoxLayout):
         self.unbind(show_title_list=s)
         o = self._change_orientation
         self.unbind(orientation=o)
-        os = self.on_size
+        os = self._on_size
         self.unbind(size=os, pos=os)
         self._graph.unbind(size=os, pos=os)
 
@@ -290,6 +286,12 @@ class MDChart(MDBoxLayout):
     # endregion
 
     # region Bind Functions:
+    def _on_size(self, *args):
+        self._update()
+        self._draw_basic_graph()
+        self._get_label_height()
+        self._get_label_width()
+
     def _update(self, *args):
         __x = self._get('x')
         __y = self._get('y')
@@ -303,7 +305,7 @@ class MDChart(MDBoxLayout):
             __pos_x = idx / (len(__x) - 1)
             __pos_x_key = 'center_x' if __pos_x != 0. and __pos_x != 1. else 'x' if __pos_x == 0. else 'right'
             if len(self._xlabels) <= idx:
-                __new_label = MDLabel(adaptive_size=True)
+                __new_label = MDLabel(**self._label_config)
                 self._xlabels.append(__new_label)
             else:
                 __new_label = self._xlabels[idx]
@@ -323,7 +325,7 @@ class MDChart(MDBoxLayout):
             __pos_y = idx / (len(__y) - 1)
             __pos_y_key = 'center_y' if __pos_y != 0. and __pos_y != 1. else 'y' if __pos_y == 0. else 'top'
             if len(self._ylabels) <= idx:
-                __new_label = MDLabel(adaptive_size=True)
+                __new_label = MDLabel(**self._label_config)
                 self._ylabels.append(__new_label)
             else:
                 __new_label = self._ylabels[idx]
