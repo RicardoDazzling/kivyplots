@@ -1,7 +1,6 @@
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.label import MDIcon, MDLabel
-from kivy.properties import StringProperty, ListProperty
-from .utils import metrics
+from kivy.properties import StringProperty
 
 
 class MDChartTitle(MDBoxLayout):
@@ -9,8 +8,8 @@ class MDChartTitle(MDBoxLayout):
     # region Properties
     icon = StringProperty('')
     font_style = StringProperty('Body1')
-    min_size = ListProperty([0, 0])
     _title_list = []
+    _showing_titles = []
     # endregion
 
     # region __init__:
@@ -21,23 +20,26 @@ class MDChartTitle(MDBoxLayout):
 
     # region Public Methods:
     def add_title(self, title: str, color: list):
-        __bl = MDBoxLayout(spacing='10dp', size_hint=(None, None), adaptive_height=True)
-        __label = MDLabel(text=title, font_style=self.font_style, size_hint=(None, None), adaptive_height=True)
-        __icon = MDIcon(icon=self.icon, text_color=color, theme_text_color="Custom", text_size=__label.text_size,
-                        size_hint=(None, None), adaptive_height=True)
+        if len(self._showing_titles) == len(self._title_list):
+            __bl = MDBoxLayout(spacing='10dp', size_hint=(None, None), adaptive_height=True)
+            __label = MDLabel(font_style=self.font_style, size_hint=(None, None), adaptive_height=True)
+            __icon = MDIcon(icon=self.icon, theme_text_color="Custom", text_size=__label.text_size,
+                            size_hint=(None, None), adaptive_height=True)
+            self._title_list.append(__bl)
+        else:
+            __bl = self._title_list[len(self._showing_titles)]
+            __label = __bl.children[0]
+            __icon = __bl.children[1]
+        __label.text = title
+        __icon.text_color = color
         __bl.add_widget(__icon)
         __bl.add_widget(__label)
-        self._update_min_size(__label, __icon, __bl)
         self.add_widget(__bl)
-        self._title_list.append(__bl)
-    # endregion
+        self._showing_titles.append(__bl)
 
-    # region Protected Methods:
-    def _update_min_size(self, label: MDLabel, icon: MDIcon, title_box: MDBoxLayout):
-        __new_min_size = (label.width + icon.width + metrics(title_box.spacing),
-                          label.height + icon.height)
-        self.min_size[0] = max(self.min_size[0], __new_min_size[0])
-        self.min_size[1] = max(self.min_size[1], __new_min_size[1])
+    def clear_titles(self):
+        for idx in range(len(self._showing_titles)):
+            self.remove_widget(self._showing_titles.pop(idx))
     # endregion
 
     # region Bind Methods:
@@ -47,11 +49,4 @@ class MDChartTitle(MDBoxLayout):
                 title.children[0].font_style = self.font_style
                 title.children[1].text_size = title.children[0].text_size
                 title.children[1].icon = self.icon
-
-    def _min_size_update(self, *args):
-        self.min_size = [0, 0]
-        for title in self._title_list:
-            __label = title.children[0]
-            __icon = title.children[1]
-            self._update_min_size(__label, __icon, title)
     # endregion

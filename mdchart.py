@@ -158,10 +158,7 @@ class MDChart(MDBoxLayout):
         self._title_list = MDChartTitle(spacing='10dp', orientation=__ori, **self._label_config)
         if self._type is not None:
             self._title_list.icon = self._get_icon()
-        self._title_list.bind(min_size=self._update_title_box_size)
         self._title_box.add_widget(self._title_list)
-        self._title_list_items = []
-        self._title_list_item_icons = []
         # endregion
 
         # region Grid:
@@ -340,15 +337,8 @@ class MDChart(MDBoxLayout):
         self._label_text(self.label_x_text, self._xlabel, self._xlabel_box)
         self._label_text(self.label_y_text, self._ylabel, self._ylabel_box)
 
-    def _update_title_box_size(self, *args):
-        # _l = len(self._title_list.children)
-        # _x = metrics('20dp')
-        # self._title_box.size = (self._title_list.min_size[0] + metrics(self._title_box.padding[0]) * _l + _x,
-        #                         self._title_list.min_size[1] + metrics(self._title_box.padding[1]) * _l)
-        pass
-
     def _change_list_icon(self, *args):
-        if self._type is not None and self._title_list_item_icons:
+        if self._type is not None:
             self._title_list.icon = self._get_icon()
 
     def _change_orientation(self, *args):

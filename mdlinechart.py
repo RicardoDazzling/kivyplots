@@ -110,6 +110,8 @@ class MDLineChart(MDChart):
                 for mark_list in self._marks:
                     for mark in mark_list:
                         self._graph.remove_widget(mark)
+            self._title_list.clear_titles()
+            self.plots.clear()
     # endregion
 
     # region Protected Methods:
@@ -203,7 +205,6 @@ class MDLineChart(MDChart):
                     else:
                         __mark = MDLineMark(size_hint=(None, None), size=(10, 10))
                         __marks.append(__mark)
-                        self._graph.add_widget(__mark)
                     if self.fields:
                         __tooltip_text = f'{self.fields[__xy[point_idx][0]]}: {__xy[point_idx][1]}.'
                     else:
@@ -217,6 +218,8 @@ class MDLineChart(MDChart):
                     if __mark.color != __color:
                         __mark.color = __color
                     __mark.pos_hint = {'center_x': __positions[point_idx][0], 'center_y': __positions[point_idx][1]}
+                    if __mark not in __graph.children:
+                        self._graph.add_widget(__mark)
                 __cpi += 1
                 if len(self._marks) > idx:
                     self._marks[idx] = __marks
