@@ -1,7 +1,7 @@
 from kivy.graphics import PushMatrix, PopMatrix, Rotate
 from kivy.metrics import dp, sp, pt, mm, cm, inch
 from typing import Union, Optional
-import decimal
+from decimal import Decimal
 
 
 def drange(start: Union[int, float], stop: Optional[Union[int, float]] = None, step: Optional[Union[int, float]] = None):
@@ -25,7 +25,7 @@ def drange(start: Union[int, float], stop: Optional[Union[int, float]] = None, s
     else:
         while __start < __stop:
             yield float(__start)
-            __start += decimal.Decimal(__step)
+            __start = Decimal(__start) + Decimal(__step)
 
 
 def dround(double: float) -> int:
