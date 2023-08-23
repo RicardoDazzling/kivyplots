@@ -25,6 +25,8 @@ class MDChartTitle(MDBoxLayout):
             __label = MDLabel(font_style=self.font_style, size_hint=(None, None), adaptive_height=True)
             __icon = MDIcon(icon=self.icon, theme_text_color="Custom", text_size=__label.text_size,
                             size_hint=(None, None), adaptive_height=True)
+            __bl.add_widget(__icon)
+            __bl.add_widget(__label)
             self._title_list.append(__bl)
         else:
             __bl = self._title_list[len(self._showing_titles)]
@@ -32,13 +34,11 @@ class MDChartTitle(MDBoxLayout):
             __icon = __bl.children[1]
         __label.text = title
         __icon.text_color = color
-        __bl.add_widget(__icon)
-        __bl.add_widget(__label)
         self.add_widget(__bl)
         self._showing_titles.append(__bl)
 
     def clear_titles(self):
-        for idx in range(len(self._showing_titles)):
+        for idx in range(len(self._showing_titles))[::-1]:
             self.remove_widget(self._showing_titles.pop(idx))
     # endregion
 

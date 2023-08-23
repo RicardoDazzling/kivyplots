@@ -5,10 +5,10 @@ KivyPlots is a Python library for show beautiful and dynamics plots inside kivy.
 ## How it seans:
 
 **MDBars:**
-![MDBars](https://github.com/RicardoDazzling/kivyplots/blob/main/bars_screenshot.png?raw=true)
+![MDBars](https://github.com/RicardoDazzling/kivyplots/blob/main/screenshots/bars_screenshot.png?raw=true)
 
 **MDLineChart:**
-![MDBars](https://github.com/RicardoDazzling/kivyplots/blob/main/linechart_screenshot.png?raw=true)
+![MDBars](https://github.com/RicardoDazzling/kivyplots/blob/main/screenshots/linechart_screenshot.png?raw=true)
 
 ## Usage
 
